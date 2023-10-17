@@ -5,7 +5,7 @@ Create a python venv:
 ``` python -m venv ./  ``` 
 
 Install required dependencies :
-``` ./bin/pip3 install face_recognition numpy ``` 
+``` ./bin/pip3 install face_recognition numpy requests ``` 
 
 And for RaspberryPi :
 ``` ./bin/pip3 install picamera```

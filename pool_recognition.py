@@ -10,6 +10,12 @@ import face_recognition
 #import picamera
 import cv2 as cv
 import numpy as np
+import requests
+
+
+
+ifttt_page = "https://maker.ifttt.com/use/p5inVg4Qkeq80VGnysbaCUMgY_Jslk6F_-lqfYwVF1M"
+requests.post('https://maker.ifttt.com/trigger/PoolAlert/with/key/p5inVg4Qkeq80VGnysbaCUMgY_Jslk6F_-lqfYwVF1M', json={"value1":"Hello Notifications"})
 
 # IF Raspberrypi
 # Get a reference to the Raspberry Pi camera.
