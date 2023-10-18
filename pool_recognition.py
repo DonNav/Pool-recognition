@@ -11,11 +11,10 @@ import face_recognition
 import cv2 as cv
 import numpy as np
 import requests
+import time
 
 
-
-ifttt_page = "https://maker.ifttt.com/use/p5inVg4Qkeq80VGnysbaCUMgY_Jslk6F_-lqfYwVF1M"
-requests.post('https://maker.ifttt.com/trigger/PoolAlert/with/key/p5inVg4Qkeq80VGnysbaCUMgY_Jslk6F_-lqfYwVF1M', json={"value1":"Hello Notifications"})
+ifttt_key = "p5inVg4Qkeq80VGnysbaCUMgY_Jslk6F_-lqfYwVF1M"
 
 # IF Raspberrypi
 # Get a reference to the Raspberry Pi camera.
@@ -75,8 +74,16 @@ face_locations = []
 face_encodings = []
 face_names = []
 
+# sending request tempo
+request_sended = False
+tic = time.perf_counter()
+toc = time.perf_counter()
+# Time between to request event
+second_between_two_event = 60
+
 while True:
-    print("Capturing image.")
+    if request_sended and time.perf_counter() - tic > second_between_two_event :
+        request_sended = False
     # IF Raspberrypi
     # Grab a single frame of video from the RPi camera as a numpy array
     #camera.capture(output, format="rgb")
@@ -132,6 +139,23 @@ while True:
             cv.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv.FILLED)
         font = cv.FONT_HERSHEY_DUPLEX
         cv.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+
+    # On va envoyer une notification si on voit que des personnes de non autorisé à la camera:
+    is_authorized_people = False
+    not_authorized_people = ""
+    for name, authorisation in zip(face_names, face_authorisations):
+        if authorisation:
+            is_authorized_people = True
+        else :
+            not_authorized_people += name + ", "
+
+    if not is_authorized_people and not request_sended:
+        # Il n'y a aucune personne authorisé dans la piscine, on envoie une alerte sur le téléphone.
+        requests.post('https://maker.ifttt.com/trigger/PoolAlert/with/key/' + ifttt_key + '',
+                  json={"value1": not_authorized_people})
+        request_sended = True
+        tic = time.perf_counter()
+        print("Send an event because those person are unauthorized: "+not_authorized_people)
 
     cv.imshow('frame', frame)
 
